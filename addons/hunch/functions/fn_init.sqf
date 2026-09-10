@@ -1,0 +1,31 @@
+if (!hasInterface || {isMultiplayer}) exitWith {};
+if (missionNamespace getVariable ["HUNCH_initialized",false]) exitWith {};
+HUNCH_initialized = true;
+HUNCH_metrics = createHashMap;
+HUNCH_frameCosts = [];
+HUNCH_cost = 0;
+HUNCH_controls = [];
+HUNCH_sources = [];
+HUNCH_receiverEH = [];
+HUNCH_player = objNull;
+HUNCH_vehicle = objNull;
+HUNCH_pf = -1;
+HUNCH_draw = -1;
+HUNCH_missionEH = [];
+HUNCH_profiles = createHashMap;
+HUNCH_entitySequence = 0;
+HUNCH_seed = 123457 + floor (diag_tickTime % 100000);
+HUNCH_contextProviders = missionNamespace getVariable ["HUNCH_contextProviders",[]];
+// Pure math is shared verbatim with SQF-VM tests; all engine reads live elsewhere.
+call compile preprocessFileLineNumbers "\hunch\math.sqf";
+call HUNCH_fnc_reset;
+{[_x] call HUNCH_fnc_register} forEach (allUnits + vehicles);
+HUNCH_missionEH pushBack ["EntityCreated",addMissionEventHandler ["EntityCreated",{[_this select 0] call HUNCH_fnc_register}]];
+HUNCH_missionEH pushBack ["Loaded",addMissionEventHandler ["Loaded",{
+    call HUNCH_fnc_reset;
+    {[_x] call HUNCH_fnc_register} forEach (allUnits + vehicles);
+}]];
+HUNCH_missionEH pushBack ["Ended",addMissionEventHandler ["Ended",{call HUNCH_fnc_shutdown}]];
+HUNCH_pf = [{call HUNCH_fnc_worker},0.1] call CBA_fnc_addPerFrameHandler;
+HUNCH_draw = addMissionEventHandler ["EachFrame",{call HUNCH_fnc_render}];
+diag_log "[HUNCH] Initialized v0.1.0; single-player only; independent of Shot Signal";

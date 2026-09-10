@@ -1,0 +1,10 @@
+if (!HUNCH_initialized) exitWith {};
+HUNCH_initialized = false;
+[HUNCH_pf] call CBA_fnc_removePerFrameHandler;
+removeMissionEventHandler ["EachFrame",HUNCH_draw];
+{_x params ["_event","_id"]; removeMissionEventHandler [_event,_id]} forEach HUNCH_missionEH;
+{_x params ["_object","_event","_id"]; if (!isNull _object) then {_object removeEventHandler [_event,_id]; if (_event == "Fired") then {_object setVariable ["HUNCH_registered",false]}}} forEach (HUNCH_sources + HUNCH_receiverEH);
+HUNCH_sources = [];
+HUNCH_receiverEH = [];
+call HUNCH_fnc_reset;
+("HUNCH_layer" call BIS_fnc_rscLayer) cutText ["","PLAIN"];

@@ -1,0 +1,4 @@
+* text=auto eol=lf
+*.paa binary
+*.pbo binary
+*.zip binary

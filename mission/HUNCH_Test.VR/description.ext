@@ -1,0 +1,7 @@
+author="HUNCH";
+onLoadName="HUNCH - Perception Range";
+onLoadMission="Single-player test range. Choose a scenario with the action menu.";
+respawn=0;
+enableDebugConsole=1;
+enableSaving=1;
+class CfgDebriefing { class END1 {title="HUNCH range complete"; subtitle="Read the isolated profile RPT for diagnostics"; description="Visual and performance acceptance must be recorded separately.";}; };

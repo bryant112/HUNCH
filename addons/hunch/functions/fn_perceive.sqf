@@ -1,0 +1,32 @@
+params ["_shot","_episode"];
+private _position = _shot get "position";
+private _delta = _position vectorDiff eyePos player;
+private _distance = vectorMagnitude _delta;
+private _timing = [_shot get "fired",_distance,time] call HUNCH_fnc_audioWindow;
+if (!(_timing select 1)) exitWith {["stale_report"] call HUNCH_fnc_metric; []};
+private _acoustic = [eyePos player,_position,"audio",_shot get "source"] call HUNCH_fnc_geometry;
+if ((_acoustic select 0) < 0) exitWith {["geometry_budget"] call HUNCH_fnc_metric; []};
+private _transmission = [0.25,0.6,1] select (if ((_acoustic select 0) == 0) then {0} else {if ((_acoustic select 0) < 1) then {1} else {2}});
+private _dir = vectorNormalized _delta;
+private _facing = (eyeDirection player) vectorDotProduct _dir;
+private _clarity = (0.7 + 0.3 * ((_facing + 1) / 2)) * (0.5 + 0.5 * (_acoustic select 0));
+private _muzzleFacing = (_shot get "direction") vectorDotProduct (_dir vectorMultiply -1);
+private _orient = 0.9 + 0.1 * ((_muzzleFacing + 1) / 2);
+private _profile = _shot get "profile";
+private _score = [_distance,(_profile select 0) * (HUNCH_context select 0),_transmission * _orient,HUNCH_context select 1,HUNCH_context select 2,_clarity,HUNCH_ability,HUNCH_frequency] call HUNCH_fnc_score;
+_score params ["_n","_c","_p","_h","_v"];
+private _visual = false;
+if (_n < 0.12 && {_shot get "exact"} && {_profile select 3} && {time - (_shot get "fired") <= 0.12}) then {
+    _visual = [_position,_shot get "source",true] call HUNCH_fnc_visibility;
+    if (_visual) then {_n = 0.7; _c = 0.75; _p = (0.7 * HUNCH_frequency) min 0.85};
+};
+if (_n < 0.12) exitWith {["inaudible"] call HUNCH_fnc_metric; []};
+if ((call HUNCH_fnc_random) >= _p) exitWith {["unnoticed"] call HUNCH_fnc_metric; []};
+if (_profile select 2) then {_c = _c * 0.8};
+if (!(_shot get "exact")) then {_c = _c * 0.6};
+_h = 60 - 48 * _c; _v = 50 - 30 * _c;
+private _bias = _episode get "bias";
+private _bearing = ((_delta select 0) atan2 (_delta select 1)) + (_bias select 0) * _h;
+private _elevation = asin ((_dir select 2) max -1 min 1) + (_bias select 1) * _v;
+private _birth = if (_visual) then {time} else {time max (_timing select 0)};
+[_shot get "id","sound",[_bearing,_elevation] call HUNCH_fnc_direction,[_h,_v],_c,_n,+HUNCH_color,_birth,_birth + 1.2]
