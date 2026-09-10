@@ -44,4 +44,11 @@ class ToolTests(unittest.TestCase):
                 analyze_benchmark.main()
             self.assertEqual(result.exception.code,1)
 
+    def test_launcher_pack_has_safe_guards(self):
+        source=(ROOT/'launcher/Launch-HUNCH-Pack.ps1').read_text()
+        self.assertIn('OneDrive',source)
+        self.assertIn('An Arma or map-tools session is already running',source)
+        self.assertIn('CBA_A3 was not found',source)
+        self.assertIn('Press Preview', (ROOT/'launcher/README.txt').read_text())
+
 if __name__=='__main__': unittest.main()

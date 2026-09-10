@@ -57,7 +57,7 @@ def main():
         if name not in ['controls']:
             assert (ROOT/f'addons/hunch/functions/fn_{name}.sqf').is_file(),name
     result = {'status':'pass','sqf_parse_files':len(scripts),'production_math_checks':23,
-        'sqf_state_checks':12,'python_tool_tests':5,'config_checks':3,'source_contracts':'pass','engine_runtime':'not run; existing Arma session preserved',
+        'sqf_state_checks':12,'python_tool_tests':6,'config_checks':3,'source_contracts':'pass','engine_runtime':'not run; existing Arma session preserved',
         'source_sha256':{str(p.relative_to(ROOT)):hashlib.sha256(p.read_bytes()).hexdigest() for p in scripts}}
     (out/'results.json').write_text(json.dumps(result,indent=2)+'\n')
     print(json.dumps({k:v for k,v in result.items() if k!='source_sha256'},indent=2))

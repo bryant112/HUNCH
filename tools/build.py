@@ -80,12 +80,22 @@ def main():
     stage = guard(ROOT/'build/staging'/uuid.uuid4().hex); stage.mkdir(parents=True)
     artifacts = [package(ROOT/'addons/hunch',guard(ROOT/'build/@HUNCH/addons/hunch.pbo'),'hunch',stage)]
     artifacts.append(package(ROOT/'mission/HUNCH_Test.VR',guard(ROOT/'build/missions/HUNCH_Test.VR.pbo'),'HUNCH_Test.VR',stage))
+    launcher_root = guard(ROOT/'build/HUNCH-Launcher-Pack')
+    if launcher_root.exists(): shutil.rmtree(launcher_root)
+    launcher_root.mkdir(parents=True)
+    shutil.copytree(ROOT/'build/@HUNCH',launcher_root/'@HUNCH')
+    shutil.copytree(ROOT/'mission/HUNCH_Test.VR',launcher_root/'HUNCH_Test.VR')
+    shutil.copytree(ROOT/'docs',launcher_root/'docs')
+    for source in sorted((ROOT/'launcher').glob('*')):
+        if source.is_file(): shutil.copy2(source,launcher_root/source.name)
+    (launcher_root/'MANIFEST.txt').write_text('HUNCH launcher pack 0.1.0\nLocal addon: @HUNCH\nTest mission: HUNCH_Test.VR\nDependency: CBA_A3 Workshop 450814997\nOptional coexistence: Shot Signal Workshop 3426116212\nRun Launch-HUNCH.cmd; it opens the test mission in the editor. Press Preview.\n')
     (ROOT/'build/@HUNCH/mod.cpp').write_text('name="HUNCH"; description="Incoming-fire awareness - single-player prototype"; author="HUNCH contributors";\n')
     manifest = {'version':'0.1.0','artifacts':artifacts,'validation':'PBO readback verified; attended runtime acceptance separate'}
     (ROOT/'build/manifest.json').write_text(json.dumps(manifest,indent=2)+'\n')
     archive = ROOT/'build/HUNCH-0.1.0.zip'
     with zipfile.ZipFile(archive,'w',zipfile.ZIP_DEFLATED) as z:
-        for directory,prefix in [(ROOT/'build/@HUNCH','@HUNCH'),(ROOT/'mission/HUNCH_Test.VR','HUNCH_Test.VR'),(ROOT/'docs','docs')]:
+        for directory,prefix in [(ROOT/'build/@HUNCH','@HUNCH'),(ROOT/'mission/HUNCH_Test.VR','HUNCH_Test.VR'),(ROOT/'docs','docs'),(launcher_root,'HUNCH-Launcher-Pack')]:
+            if directory == launcher_root: continue
             for p in sorted(directory.rglob('*')):
                 if p.is_file(): z.write(p,f'{prefix}/{p.relative_to(directory).as_posix()}')
         z.write(ROOT/'README.md','README.md')
@@ -99,7 +109,10 @@ def main():
             'The repository README build commands require the development checkout at C:\\dev\\arma-shot-awareness.\n'
             'This portable archive contains the built addon and test mission, not the development tools.\n'
             'Read docs/STATUS.md and docs/ACCEPTANCE.md. No measured performance or visual pass is claimed.\n')
+        for p in sorted(launcher_root.rglob('*')):
+            if p.is_file(): z.write(p,f'HUNCH-Launcher-Pack/{p.relative_to(launcher_root).as_posix()}')
     manifest['archive'] = {'path':str(archive.relative_to(ROOT)),'sha256':hashlib.sha256(archive.read_bytes()).hexdigest()}
+    manifest['launcher_pack'] = {'path':str(launcher_root.relative_to(ROOT)),'archive_prefix':'HUNCH-Launcher-Pack','dependency':'CBA_A3 450814997','optional':'Shot Signal 3426116212'}
     (ROOT/'build/manifest.json').write_text(json.dumps(manifest,indent=2)+'\n')
     print(json.dumps(manifest,indent=2))
 

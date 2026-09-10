@@ -27,6 +27,7 @@ Outputs:
 - `build/HUNCH-0.1.0.zip` — portable candidate with addon, source test mission, and documentation.
 - `build/missions/HUNCH_Test.VR.pbo` — packaged stock-terrain test mission.
 - `build/manifest.json` — package SHA-256 and entry counts.
+- `build/HUNCH-Launcher-Pack/` — extracted load-and-go pack with launch scripts.
 - `build/validation/results.json` — automated evidence, with source hashes.
 
 CfgConvert compiles the addon configuration. An original mathematical alpha mask is generated and converted with ImageToPAA. FileBank packages the result; every entry is read back and compared byte-for-byte with staged inputs. Build artifacts and downloaded tools are ignored by Git.
@@ -39,6 +40,8 @@ CfgConvert compiles the addon configuration. An original mathematical alpha mask
 .\tools\Launch-Test.ps1 -WithoutHunch
 .\tools\Launch-Test.ps1 -WithShotSignal
 ```
+
+For a packaged double-click flow, extract `build/HUNCH-Launcher-Pack/` or the same folder from `build/HUNCH-0.1.0.zip` under `C:\dev\HUNCH-launcher`, install CBA_A3, and run `Launch-HUNCH.cmd`. It finds the Arma executable and CBA in registered Steam libraries, loads the local HUNCH mod, and opens `HUNCH_Test.VR` in the editor; press Preview to enter the range. `Launch-HUNCH-With-Shot-Signal.cmd` adds installed Shot Signal independently.
 
 The launcher refuses to start while Arma or map tools are running. It never stops another process. It uses `runtime/profiles`, the source test mission, installed CBA, and this checkout's build. No deployment to an existing Arma mission/mod directory is required.
 
