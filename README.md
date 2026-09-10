@@ -8,6 +8,8 @@ An uncertain incoming-fire awareness overlay for Arma 3. Large, faint amber impr
 
 Everything lives in `C:\dev\arma-shot-awareness`, on `feature/hunch-v1`. No map assets, map build scripts, existing launcher profiles, or installed Workshop content are modified. CBA is the only required external addon. Shot Signal is optional and independent; HUNCH never changes its variables or controls.
 
+The public repository is [bryant112/HUNCH](https://github.com/bryant112/HUNCH). Follow-up work is tracked in the [HUNCH v0.1 validation project](https://github.com/users/bryant112/projects/6) and the [v0.1 attended-validation milestone](https://github.com/bryant112/HUNCH/milestone/1): native event/lifecycle validation, HUD calibration, performance A/B, mod-stack compatibility, launcher-pack acceptance, and the release decision.
+
 True single-player only. The addon deliberately does nothing in multiplayer, including playing alone through a dedicated-server launcher.
 
 ## Build and verify
